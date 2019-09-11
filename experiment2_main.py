@@ -102,7 +102,7 @@ def setStage(TILING = True):
 	#CODE UP TILE-WORK WITH GROUNDPLANE.	
 	##should set this up so it builds new tiles if you are reaching the boundary.
 	#fName = 'textures\\strong_edge_redoutline.bmp'
-	fName = 'textures\\strong_edge.bmp'
+	fName = 'textures\\black.jpg'
 	gtexture = viz.addTexture(fName)
 	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
