@@ -98,36 +98,52 @@ def setStage(TILING = True):
 	
 	# background color
 	viz.clearcolor(viz.SKYBLUE)
+
+	# global groundplane, groundtexture	
+	# gsize = [1000,1000] #groundplane size, metres
+	# groundplane = vizshape.addPlane(size=(gsize[0],gsize[1]),axis=vizshape.AXIS_Y,cullFace=True) ##make groundplane
+	# groundplane.texture(viz.add('black.jpg')) #make groundplane black
+
+	# #Build dot plane to cover black groundplane
+	# ndots = 200000 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
+	# viz.startlayer(viz.POINTS)
+	# viz.vertexColor(viz.WHITE)	
+	# viz.pointSize(2)
+	# for i in range (0,ndots):
+	# 	x =  (random.random() - .5)  * gsize[0]
+	# 	z = (random.random() - .5) * gsize[1]
+	# 	viz.vertex([x,0,z])
 	
-	#CODE UP TILE-WORK WITH GROUNDPLANE.	
-	##should set this up so it builds new tiles if you are reaching the boundary.
-	#fName = 'textures\\strong_edge_redoutline.bmp'
+	# dots = viz.endLayer()
+	# dots.setPosition(0,0,0)
+	# dots.visible(1)
+	# groundplane.visible(1)
+
+	
+# 	#CODE UP TILE-WORK WITH GROUNDPLANE.	
+# 	##should set this up so it builds new tiles if you are reaching the boundary.
 	fName = 'textures\\black.jpg'
-	gtexture = viz.addTexture(fName)
+ 	gtexture = viz.addTexture(fName)
 	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
-	# #add groundplane (wrap mode)
-###UNCOMMENT FOR TILING
-# Tiling saves memory by using two groundplane tiles instead of a massive groundplane. Since the drivers are essentially driving linearly forward, they cover a lot of distance across the z axis.
-	gplane1 = viz.addTexQuad() ##
-	tilesize = 3000
+# 	# #add groundplane (wrap mode)
+# ###UNCOMMENT FOR TILING
+# # Tiling saves memory by using two groundplane tiles instead of a massive groundplane. Since the drivers are essentially driving linearly forward, they cover a lot of distance across the z axis.
+ 	gplane1 = viz.addTexQuad() ##
+ 	tilesize = 3000
 	texture_z_size = tilesize * 2
-	#planesize = tilesize/5
 	planesize = tilesize/5.0
 	gplane1.setScale(tilesize, tilesize*2, tilesize)
 	gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
-	#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much (was originally commented out)
+# 	#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much (was originally commented out)
 	matrix = vizmat.Transform()
 	matrix.setScale( planesize, planesize*2, planesize )
 	gplane1.texmat( matrix )
-	#gplane1.texture(gtexture)
 	gplane1.texture(gtexture)
 	gplane1.visible(1)
-#
+# #
 	if TILING:
-		# fName2 = 'textures\\strong_edge_blueoutline.bmp'
-		#fName2 = 'textures\\strong_edge_blueoutline.bmp'
-		fName2 = 'textures\\strong_edge.bmp'
+		fName2 = 'textures\\black.jpg'
 		gtexture2 = viz.addTexture(fName2)
 		gtexture2.wrap(viz.WRAP_T, viz.REPEAT)
 		gtexture2.wrap(viz.WRAP_S, viz.REPEAT)
@@ -162,28 +178,6 @@ def setStage(TILING = True):
 #	groundplane.visible(1)
 #	link = viz.link(viz.MainView,groundplane)
 #	link.clampPosY(0)
-#	
-#	
-#	
-##	#NEED TO TILE THIS DOTS & JUST BEYOND
-##
-#	#Build dot plane to cover black groundplane
-#	ndots = 100000 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
-#	dsize = 5000
-#	viz.startlayer(viz.POINTS)
-#	viz.vertexColor(viz.WHITE)	
-#	viz.pointSize(2)
-#	for i in range (0,ndots):
-#		x =  (random.random() - .5)  * dsize
-#		z = (random.random() - .5) * dsize
-#		viz.vertex([x,0,z])
-#	
-#	dots = viz.endLayer()
-#	dots.setPosition(0,0,0)
-#	dots.visible(1)
-
-	
-
 
 def StraightMaker(x, start_z, end_z, colour = [.8,.8,.8], primitive= viz.QUAD_STRIP, width=None):
 	"""returns a straight, given some starting coords and length"""
@@ -328,12 +322,8 @@ class myExperiment(viz.EventClass):
 		self.caveview = self.cave.getCaveView() #this module includes viz.go()
 
 		##### SET CONDITION VALUES #####
-		#self.FACTOR_headingpool = np.linspace(-10, 10, 5) # -10, -5, 0, 5 , 10
-		#self.FACTOR_headingpool = [0] #array from -45 to 45. 
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		print self.FACTOR_headingpool	
-		#self.FACTOR_headingpool = np.linspace(-30, 30, 5) #array from -45 to 45. 
-		#self.FACTOR_occlPool = [0, .5, 1] #3 occlusion delay time conditions
+		print(self.FACTOR_headingpool)	
 		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
@@ -342,11 +332,9 @@ class myExperiment(viz.EventClass):
 		self.ConditionList_heading = cl_heading
 		self.ConditionList_occl = cl_occl
 
-		#self.Camera_Offset = [-45, -10, 10, 45] #very obvious.
-		#self.Camera_Offset = np.linspace(-10, 10, 5) #random jitter within smallish bounds.
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
-		##### ADD GRASS TEXTURE #####
+		##### ADD GRASS TEXTURE ##### 	
 		[gplane1, gplane2, gplane_z_size] = setStage(TILING)
 		self.gplane1 = gplane1
 		self.gplane2 = gplane2
@@ -453,7 +441,7 @@ class myExperiment(viz.EventClass):
 			
 			#translate bend to driver position.
 			driverpos = viz.MainView.getPosition()
-			print driverpos
+			print(driverpos)
 			self.Straight.setPosition(driverpos[0],0, driverpos[2])
 
 			# self.Straight.setPosition([0,0, 5], viz.REL_LOCAL)
@@ -506,7 +494,7 @@ class myExperiment(viz.EventClass):
 
 			#translate bend to driver position.
 			driverpos = viz.MainView.getPosition()
-			print driverpos
+			print(driverpos)
 			self.Straight.setPosition(driverpos[0],0, driverpos[2])
 
 			# self.Straight.setPosition([0,0, 5], viz.REL_LOCAL)
@@ -637,7 +625,7 @@ class myExperiment(viz.EventClass):
 			if viz.MainWindow.isCulled(self.gplane1):
 				#if it's not visible, move ahead 50m from the driver.
 				
-				print 'shift gplane1'
+				print('shift gplane1')
 
 				#since the road is on average straight ahead you can just move the plane along the z axis
 
@@ -655,7 +643,7 @@ class myExperiment(viz.EventClass):
 			if viz.MainWindow.isCulled(self.gplane2):
 				#if it's not visible, move ahead 50m from the driver.
 				
-				print 'shift gplane2'
+				print('shift gplane2')
 				
 								#change gplane to the driver's position
 				self.gplane2.setPosition(pos,viz.ABS_GLOBAL) 

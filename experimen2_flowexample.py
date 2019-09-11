@@ -8,8 +8,8 @@ import vizshape
 
 ##Code will be the threshold vs accumulator pop up bends experiment.
 
-global driver, out # global variable
-driver = vizdriver.Driver()
+# global driver, out # global variable
+# driver = vizdriver.Driver()
 
 out = "-1"
 # start empty world
