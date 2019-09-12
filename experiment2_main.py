@@ -33,11 +33,6 @@ import pandas as pd
 import random
 #import PPinput
 
-# ParticipantNumber = viz.input('Enter your participant number:')
-# ParticipantID = viz.input('Enter your unique participant ID: ')
-
-# filename = str(ParticipantNumber) + '_' + str(ParticipantID)
-
 def LoadEyetrackingModules():
 
 	"""load eyetracking modules and check connection"""
@@ -66,15 +61,15 @@ def LoadCave():
 	#caveview = cave.getCaveView()
 	return (cave)
 
-def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition):
+def GenerateConditionLists(FACTOR_headingpool, FACTOR_flow, TrialsPerCondition):
 	"""Based on two factor lists and TrialsPerCondition, create a factorial design and return trialarray and condition lists"""
 
-	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool)	
+	NCndts = len(FACTOR_headingpool) * len(FACTOR_flow)	
 #	ConditionList = range(NCndts) 
 
 	#automatically generate factor lists so you can adjust levels using the FACTOR variables
-	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_occlPool)	)
-	ConditionList_occl = np.tile(FACTOR_occlPool, len(FACTOR_headingpool)	)
+	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_flow))
+	ConditionList_occl = np.tile(FACTOR_flow, len(FACTOR_headingpool)	)
 
 	print (ConditionList_heading)
 	print (ConditionList_occl)
@@ -202,102 +197,6 @@ def StraightMaker(x, start_z, end_z, colour = [.8,.8,.8], primitive= viz.QUAD_ST
 
 	return straightedge
 
-
-def BendMaker(radlist):
-	
-	"""makes left and right road edges for for a given heading and return them in a list"""
-	
-	#needs to work with an array of heading
-
-	rdsize = 500 # Hz size for curve length
-	
-	#left_array= np.arange(0.0, np.pi*1000)/1000 # arange(start,stop,step). Array with 3142(/1000) numbers. 
-	left_array= np.linspace(0.0, np.pi,rdsize) #### creates evenly spaced 500 steps from 0 to pi for left heading turn to be made 
-	#right_array = np.arange(np.pi*1000, 0.0, -1)/1000  ##arange(start,stop,step). Array with 3142(/1000) numbers
-	right_array = np.linspace(np.pi, 0.0, rdsize)  #### From pi to 0 in 500 steps (opposite for opposite corner)
-	
-	leftbendlist = []
-	rightbendlist = []
-	grey = [.8,.8,.8]
-	for r in radlist:
-		x1 = np.zeros(rdsize)
-		z1 = np.zeros(rdsize)
-		x2 = np.zeros(rdsize)
-		z2 = np.zeros(rdsize)	
-			
-		i = 0
-
-		##try using quad-strip for roads.
-		viz.startLayer(viz.QUAD_STRIP) # Investigate quad strips on google 
-		width = .1 #road width/2
-		if r > 0:	#r=-1 means it is a straight.
-			while i < rdsize:		
-				#need two vertices at each point to form quad vertices
-				#inside edge
-				x1[i] = ((r-width)*np.cos(right_array[i])) + r
-				z1[i] = ((r-width)*np.sin(right_array[i]))
-				#print (z1[i])
-				viz.vertexColor(grey)
-				viz.vertex(x1[i], .1, z1[i] )		
-				
-				#outside edge. #does it matter if it's overwritten? 
-				x1[i] = ((r+width)*np.cos(right_array[i])) + r
-				z1[i] = ((r+width)*np.sin(right_array[i]))
-				#print (z1[i])
-				viz.vertexColor(grey)
-				viz.vertex(x1[i], .1, z1[i] )	
-				i += 1
-		else:
-			viz.vertexColor(grey)
-			viz.vertex(0+width,.1,0)
-			viz.vertex(0-width,.1,0)
-			viz.vertex(0+width,.1,100.0) #100m straight
-			viz.vertex(0-width,.1,100.0) #100m straight
-			
-		rightbend = viz.endlayer()
-		rightbend.visible(0)
-		rightbend.dynamic()
-
-			
-		i=0
-		viz.startLayer(viz.QUAD_STRIP)
-		width = .1 #road width/2
-		if r > 0:	#r=-1 means it is a straight.
-			while i < rdsize:			
-				#need two vertices at each point to form quad vertices
-				#inside edge
-				x2[i] = ((r-width)*np.cos(left_array[i])) - r
-				z2[i] = ((r-width)*np.sin(left_array[i]))
-				#print (z1[i])
-				viz.vertexColor(grey)
-				viz.vertex(x2[i], .1, z2[i] )		
-				
-				#outside edge. #does it matter if it's overwritten? 
-				x1[2] = ((r+width)*np.cos(left_array[i])) - r
-				z1[2] = ((r+width)*np.sin(left_array[i]))
-				#print (z1[i])
-				viz.vertexColor(grey)
-				viz.vertex(x1[2], .1, z2[i] )	
-				i += 1
-		else:
-			viz.vertexColor(grey)
-			viz.vertex(0+width,.1,0)
-			viz.vertex(0-width,.1,0)
-			viz.vertex(0+width,.1,100.0) #100m straight
-			viz.vertex(0-width,.1,100.0) #100m straight
-		
-		leftbend = viz.endlayer()	
-		leftbend.visible(0)
-		leftbend.dynamic()
-
-		### Above codes for the left hand bends
-			
-		leftbendlist.append(leftbend)
-		rightbendlist.append(rightbend)
-	
-	
-	return leftbendlist,rightbendlist 
-
 class myExperiment(viz.EventClass):
 
 	def __init__(self, eyetracking, practice, tiling, exp_id, ppid = 1):
@@ -324,9 +223,9 @@ class myExperiment(viz.EventClass):
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
-		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
+		self.FACTOR_flow = [0] #3 occlusion delay time conditions
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
-		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
+		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_flow, self.TrialsPerCondition)
 
 		self.TRIALSEQ_signed = trialsequence_signed #list of trialtypes in a randomised order. -ve = leftwards, +ve = rightwards.
 		self.ConditionList_heading = cl_heading
@@ -401,9 +300,9 @@ class myExperiment(viz.EventClass):
 		viz.MainScene.visible(viz.ON,viz.WORLD)		
 	
 		#add text to denote conditons - COMMENT OUT FOR EXPERIMENT
-		# txtCondt = viz.addText("Condition",parent = viz.SCREEN)
-		# txtCondt.setPosition(.7,.2)
-		# txtCondt.fontSize(36)		
+		txtCondt = viz.addText("Condition",parent = viz.SCREEN)
+		txtCondt.setPosition(.7,.2)
+		txtCondt.fontSize(36)		
 
 		if self.EYETRACKING:
 			comms.start_trial()
@@ -428,7 +327,7 @@ class myExperiment(viz.EventClass):
 			######choose correct road object.######
 
 			# changes message on screen			
-			# msg = msg = "Heading: " + str(trial_heading) + '_' + str(trial_occl) # COMMENT OUT FOR EXPERIMENT
+			msg = msg = "Heading: " + str(trial_heading) + '_' + str(trial_occl) # COMMENT OUT FOR EXPERIMENT
 
 
 			
@@ -487,9 +386,9 @@ class myExperiment(viz.EventClass):
 
 			yield viztask.waitTime(1) #wait for one second after change of camera heading
 			
-			# msg = msg + '\n' + 'Offset: ' + str(self.Trial_Camera_Offset) #Save your variables - COMMENT OUT FOR EXPERIMENT
+			msg = msg + '\n' + 'Offset: ' + str(self.Trial_Camera_Offset) #Save your variables - COMMENT OUT FOR EXPERIMENT
 
-			# txtCondt.message(msg)	# COMMENT OUT FOR EXPERIMENT
+			txtCondt.message(msg)	# COMMENT OUT FOR EXPERIMENT
 
 
 			#translate bend to driver position.
