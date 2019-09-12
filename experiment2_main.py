@@ -62,17 +62,15 @@ def LoadCave():
 	#caveview = cave.getCaveView()
 	return (cave)
 
-def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition, Factor_flow):
+def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition):
 	"""Based on two factor lists and TrialsPerCondition, create a factorial design and return trialarray and condition lists"""
 
-	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool) * len(Factor_flow)	
+	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool)
 #	ConditionList = range(NCndts) 
 
 	#automatically generate factor lists so you can adjust levels using the FACTOR variables
 	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_occlPool))
 	ConditionList_occl = np.tile(FACTOR_occlPool, len(FACTOR_headingpool))
-	ConditionList_flow = np.repeat(Factor_flow, len(FACTOR_headingpool))
-	
 
 	print (ConditionList_heading)
 	print (ConditionList_occl)
@@ -87,7 +85,7 @@ def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerConditi
 
 	TRIALSEQ_signed = np.array(direc)*np.array(TRIALSEQ)
 
-	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_occl, ConditionList_flow)
+	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_occl)
 
 # ground texture setting
 # def setStage(TILING = False):
@@ -227,14 +225,12 @@ class myExperiment(viz.EventClass):
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
 		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
-		self.Factor_flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
-		[trialsequence_signed, cl_heading, cl_occl, cl_flow]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition, self.Factor_flow)
+		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
 
 		self.TRIALSEQ_signed = trialsequence_signed #list of trialtypes in a randomised order. -ve = leftwards, +ve = rightwards.
 		self.ConditionList_heading = cl_heading
 		self.ConditionList_occl = cl_occl
-		self.Factor_flow = cl_flow
 
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
@@ -333,8 +329,9 @@ class myExperiment(viz.EventClass):
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
 			trial_occl = self.ConditionList_occl[trialtype] #set target number for the trial.
-			trial_flow = random.choice(self.Factor_flow)
-		
+
+			flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
+			trial_flow = random.choice(flow)
 			fName = trial_flow
 			gtexture = viz.addTexture(fName)
 			gtexture.wrap(viz.WRAP_T, viz.REPEAT)
@@ -551,25 +548,25 @@ class myExperiment(viz.EventClass):
 
 		self.RecordData() #write a line in the dataframe.
 	
-		if self.TILING:
+		# if self.TILING:
 		
-			#check if groundplane is culled, and update it if it is. 
-			if viz.MainWindow.isCulled(self.gplane1):
-				#if it's not visible, move ahead 50m from the driver.
+		# 	#check if groundplane is culled, and update it if it is. 
+		# 	if viz.MainWindow.isCulled(self.gplane1):
+		# 		#if it's not visible, move ahead 50m from the driver.
 				
-				print('shift gplane1')
+		# 		print('shift gplane1')
 
-				#since the road is on average straight ahead you can just move the plane along the z axis
+		# 		#since the road is on average straight ahead you can just move the plane along the z axis
 
-				#change gplane to the driver's position
-				self.gplane1.setPosition(pos,viz.ABS_GLOBAL) 
+		# 		#change gplane to the driver's position
+		# 		self.gplane1.setPosition(pos,viz.ABS_GLOBAL) 
 
 				
-				#change euler to match camera
-				self.gplane1.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
+		# 		#change euler to match camera
+		# 		self.gplane1.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
 				
-				#move forward one texture length.
-				self.gplane1.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
+		# 		#move forward one texture length.
+		# 		self.gplane1.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
 
 				
 			# if viz.MainWindow.isCulled(self.gplane2):
