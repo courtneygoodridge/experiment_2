@@ -62,15 +62,17 @@ def LoadCave():
 	#caveview = cave.getCaveView()
 	return (cave)
 
-def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition):
+def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition, Factor_flow):
 	"""Based on two factor lists and TrialsPerCondition, create a factorial design and return trialarray and condition lists"""
 
-	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool)	
+	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool) * len(Factor_flow)	
 #	ConditionList = range(NCndts) 
 
 	#automatically generate factor lists so you can adjust levels using the FACTOR variables
-	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_occlPool)	)
-	ConditionList_occl = np.tile(FACTOR_occlPool, len(FACTOR_headingpool)	)
+	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_occlPool))
+	ConditionList_occl = np.tile(FACTOR_occlPool, len(FACTOR_headingpool))
+	ConditionList_flow = np.repeat(Factor_flow, len(FACTOR_headingpool))
+	
 
 	print (ConditionList_heading)
 	print (ConditionList_occl)
@@ -85,7 +87,7 @@ def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerConditi
 
 	TRIALSEQ_signed = np.array(direc)*np.array(TRIALSEQ)
 
-	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_occl)
+	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_occl, ConditionList_flow)
 
 # ground texture setting
 # def setStage(TILING = False):
@@ -225,36 +227,38 @@ class myExperiment(viz.EventClass):
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
 		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
+		self.Factor_flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
-		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
+		[trialsequence_signed, cl_heading, cl_occl, cl_flow]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition, self.Factor_flow)
 
 		self.TRIALSEQ_signed = trialsequence_signed #list of trialtypes in a randomised order. -ve = leftwards, +ve = rightwards.
 		self.ConditionList_heading = cl_heading
 		self.ConditionList_occl = cl_occl
+		self.Factor_flow = cl_flow
 
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
 		##### ADD GRASS TEXTURE ##### 
 		# background color
 		viz.clearcolor(viz.SKYBLUE)
-		flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
-		fName = random.choice(flow)
-		gtexture = viz.addTexture(fName)
-		gtexture.wrap(viz.WRAP_T, viz.REPEAT)
-		gtexture.wrap(viz.WRAP_S, viz.REPEAT)
-		gplane1 = viz.addTexQuad() 
-		tilesize = 3000
-		texture_z_size = tilesize * 2
-		planesize = tilesize/5.0
-		gplane1.setScale(tilesize, tilesize*2, tilesize)
-		gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
-		matrix = vizmat.Transform()
-		matrix.setScale( planesize, planesize*2, planesize )
-		gplane1.texmat( matrix )
-		gplane1.texture(gtexture)
-		gplane1.visible(1)
-		self.gplane1 = gplane1
-		self.gplane_z_size = texture_z_size		
+		# flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
+		# fName = trial_flow
+		# gtexture = viz.addTexture(fName)
+		# gtexture.wrap(viz.WRAP_T, viz.REPEAT)
+		# gtexture.wrap(viz.WRAP_S, viz.REPEAT)
+		# gplane1 = viz.addTexQuad() 
+		# tilesize = 3000
+		# texture_z_size = tilesize * 2
+		# planesize = tilesize/5.0
+		# gplane1.setScale(tilesize, tilesize*2, tilesize)
+		# gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
+		# matrix = vizmat.Transform()
+		# matrix.setScale( planesize, planesize*2, planesize )
+		# gplane1.texmat( matrix )
+		# gplane1.texture(gtexture)
+		# gplane1.visible(1)
+		# self.gplane1 = gplane1
+		# self.gplane_z_size = texture_z_size		
 		
 		# [gplane1, gplane_z_size] = setStage(TILING)
 		# ##### MAKE STRAIGHT OBJECT ##### 
@@ -329,6 +333,25 @@ class myExperiment(viz.EventClass):
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
 			trial_occl = self.ConditionList_occl[trialtype] #set target number for the trial.
+			trial_flow = random.choice(self.Factor_flow)
+		
+			fName = trial_flow
+			gtexture = viz.addTexture(fName)
+			gtexture.wrap(viz.WRAP_T, viz.REPEAT)
+			gtexture.wrap(viz.WRAP_S, viz.REPEAT)
+			gplane1 = viz.addTexQuad() 
+			tilesize = 3000
+			texture_z_size = tilesize * 2
+			planesize = tilesize/5.0
+			gplane1.setScale(tilesize, tilesize*2, tilesize)
+			gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
+			matrix = vizmat.Transform()
+			matrix.setScale( planesize, planesize*2, planesize )
+			gplane1.texmat( matrix )
+			gplane1.texture(gtexture)
+			gplane1.visible(1)
+			self.gplane1 = gplane1
+			self.gplane_z_size = texture_z_size		
 
 			print(str([trial_heading, trial_occl]))
 
