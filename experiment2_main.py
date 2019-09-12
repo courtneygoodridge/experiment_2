@@ -236,9 +236,9 @@ class myExperiment(viz.EventClass):
 
 		##### ADD GRASS TEXTURE ##### 
 		# background color
-		flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
 		viz.clearcolor(viz.SKYBLUE)
-		fName = random.choice(flow) 
+		flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
+		fName = random.choice(flow)
 		gtexture = viz.addTexture(fName)
 		gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 		gtexture.wrap(viz.WRAP_S, viz.REPEAT)
@@ -303,12 +303,6 @@ class myExperiment(viz.EventClass):
 
 	def runtrials(self):
 		"""Loops through the trial sequence"""
-		
-		# if self.EYETRACKING:
-			# filename = str(self.EXP_ID) + "_Calibration" #+ str(demographics[0]) + "_" + str(demographics[2]) #add experimental block to filename
-			# print (filename)
-			# yield run_calibration(comms, filename)
-			# yield run_accuracy(comms, filename)		
 
 		self.driver = vizdriver.Driver(self.caveview)	
 		self.SAVEDATA = True # switch saving data on.
