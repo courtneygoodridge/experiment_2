@@ -33,6 +33,7 @@ import pandas as pd
 import random
 #import PPinput
 
+
 def LoadEyetrackingModules():
 
 	"""load eyetracking modules and check connection"""
@@ -61,15 +62,15 @@ def LoadCave():
 	#caveview = cave.getCaveView()
 	return (cave)
 
-def GenerateConditionLists(FACTOR_headingpool, FACTOR_flow, TrialsPerCondition):
+def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition):
 	"""Based on two factor lists and TrialsPerCondition, create a factorial design and return trialarray and condition lists"""
 
-	NCndts = len(FACTOR_headingpool) * len(FACTOR_flow)	
+	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool)	
 #	ConditionList = range(NCndts) 
 
 	#automatically generate factor lists so you can adjust levels using the FACTOR variables
-	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_flow))
-	ConditionList_occl = np.tile(FACTOR_flow, len(FACTOR_headingpool)	)
+	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_occlPool)	)
+	ConditionList_occl = np.tile(FACTOR_occlPool, len(FACTOR_headingpool)	)
 
 	print (ConditionList_heading)
 	print (ConditionList_occl)
@@ -87,12 +88,12 @@ def GenerateConditionLists(FACTOR_headingpool, FACTOR_flow, TrialsPerCondition):
 	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_occl)
 
 # ground texture setting
-def setStage(TILING = True):
+# def setStage(TILING = False):
 	
-	"""Creates grass textured groundplane"""
 	
-	# background color
-	viz.clearcolor(viz.SKYBLUE)
+	
+	# flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
+	# flowrandom = random.choice(flow)
 
 	# global groundplane, groundtexture	
 	# gsize = [1000,1000] #groundplane size, metres
@@ -116,46 +117,46 @@ def setStage(TILING = True):
 
 	
 # 	#CODE UP TILE-WORK WITH GROUNDPLANE.	
-# 	##should set this up so it builds new tiles if you are reaching the boundary.
-	fName = 'textures\\black.jpg'
- 	gtexture = viz.addTexture(fName)
-	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
-	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
-# 	# #add groundplane (wrap mode)
-# ###UNCOMMENT FOR TILING
-# # Tiling saves memory by using two groundplane tiles instead of a massive groundplane. Since the drivers are essentially driving linearly forward, they cover a lot of distance across the z axis.
- 	gplane1 = viz.addTexQuad() ##
- 	tilesize = 3000
-	texture_z_size = tilesize * 2
-	planesize = tilesize/5.0
-	gplane1.setScale(tilesize, tilesize*2, tilesize)
-	gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
-# 	#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much (was originally commented out)
-	matrix = vizmat.Transform()
-	matrix.setScale( planesize, planesize*2, planesize )
-	gplane1.texmat( matrix )
-	gplane1.texture(gtexture)
-	gplane1.visible(1)
+# 	##should set this up so it builds new tiles if you are reaching the boundary
+# 	fName = 'textures\\strong_edge.bmp'
+# 	gtexture = viz.addTexture(fName)
+# 	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
+# 	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
+# # 	# #add groundplane (wrap mode)
+# # ###UNCOMMENT FOR TILING
+# # # Tiling saves memory by using two groundplane tiles instead of a massive groundplane. Since the drivers are essentially driving linearly forward, they cover a lot of distance across the z axis.
+#  	gplane1 = viz.addTexQuad() ##
+#  	tilesize = 3000
+# 	texture_z_size = tilesize * 2
+# 	planesize = tilesize/5.0
+# 	gplane1.setScale(tilesize, tilesize*2, tilesize)
+# 	gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
+# # 	#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much (was originally commented out)
+# 	matrix = vizmat.Transform()
+# 	matrix.setScale( planesize, planesize*2, planesize )
+# 	gplane1.texmat( matrix )
+# 	gplane1.texture(gtexture)
+# 	gplane1.visible(1)
 # #
-	if TILING:
-		fName2 = 'textures\\black.jpg'
-		gtexture2 = viz.addTexture(fName2)
-		gtexture2.wrap(viz.WRAP_T, viz.REPEAT)
-		gtexture2.wrap(viz.WRAP_S, viz.REPEAT)
-		gplane2 = gplane1.copy() #create duplicate.
-		gplane2.setScale(tilesize, tilesize*2, tilesize)
-		gplane2.setEuler((0, 90, 0),viz.REL_LOCAL)
-		#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much.
-		gplane2.texmat( matrix )
-		#gplane1.texture(gtexture)
-		gplane2.texture(gtexture2)
-		gplane2.visible(1)
-		gplane2.setPosition(0,0,tilesize*2)
-		gplane2.zoffset(-1)
-	else:
-		gplane2 = []
+	# if TILING:
+	# 	fName2 = fName
+	# 	gtexture2 = viz.addTexture(fName2)
+	# 	gtexture2.wrap(viz.WRAP_T, viz.REPEAT)
+	# 	gtexture2.wrap(viz.WRAP_S, viz.REPEAT)
+	# 	gplane2 = gplane1.copy() #create duplicate.
+	# 	gplane2.setScale(tilesize, tilesize*2, tilesize)
+	# 	gplane2.setEuler((0, 90, 0),viz.REL_LOCAL)
+	# 	#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much.
+	# 	gplane2.texmat( matrix )
+	# 	#gplane1.texture(gtexture)
+	# 	gplane2.texture(gtexture2)
+	# 	gplane2.visible(1)
+	# 	gplane2.setPosition(0,0,tilesize*2)
+	# 	gplane2.zoffset(-1)
+	# else:
+	# 	gplane2 = []
 	
-	return(gplane1, gplane2, texture_z_size)
+	# return(gplane1, texture_z_size)
 #	##To save CPU I could move a small quad with the person.
 #	gsizex = 50 #groundplane size, metres squared
 #	gsizez = 160 #clipped at 150.
@@ -223,9 +224,9 @@ class myExperiment(viz.EventClass):
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
-		self.FACTOR_flow = [0] #3 occlusion delay time conditions
+		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
-		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_flow, self.TrialsPerCondition)
+		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
 
 		self.TRIALSEQ_signed = trialsequence_signed #list of trialtypes in a randomised order. -ve = leftwards, +ve = rightwards.
 		self.ConditionList_heading = cl_heading
@@ -233,19 +234,34 @@ class myExperiment(viz.EventClass):
 
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
-		##### ADD GRASS TEXTURE ##### 	
-		[gplane1, gplane2, gplane_z_size] = setStage(TILING)
+		##### ADD GRASS TEXTURE ##### 
+		# background color
+		flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
+		viz.clearcolor(viz.SKYBLUE)
+		fName = random.choice(flow) 
+		gtexture = viz.addTexture(fName)
+		gtexture.wrap(viz.WRAP_T, viz.REPEAT)
+		gtexture.wrap(viz.WRAP_S, viz.REPEAT)
+		gplane1 = viz.addTexQuad() 
+		tilesize = 3000
+		texture_z_size = tilesize * 2
+		planesize = tilesize/5.0
+		gplane1.setScale(tilesize, tilesize*2, tilesize)
+		gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
+		matrix = vizmat.Transform()
+		matrix.setScale( planesize, planesize*2, planesize )
+		gplane1.texmat( matrix )
+		gplane1.texture(gtexture)
+		gplane1.visible(1)
 		self.gplane1 = gplane1
-		self.gplane2 = gplane2
-		self.gplane_z_size = gplane_z_size
-
-		##### MAKE STRAIGHT OBJECT #####
-		self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200)	
+		self.gplane_z_size = texture_z_size		
+		
+		# [gplane1, gplane_z_size] = setStage(TILING)
+		# ##### MAKE STRAIGHT OBJECT ##### 
+		self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200)
 		self.Straight.visible(0)
-
 		self.callback(viz.TIMER_EVENT,self.updatePositionLabel)
 		self.starttimer(0,0,viz.FOREVER) #self.update position label is called every frame.
-		
 		self.driver = None
 		self.SAVEDATA = False
 
@@ -539,20 +555,20 @@ class myExperiment(viz.EventClass):
 				self.gplane1.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
 
 				
-			if viz.MainWindow.isCulled(self.gplane2):
-				#if it's not visible, move ahead 50m from the driver.
+			# if viz.MainWindow.isCulled(self.gplane2):
+			# 	#if it's not visible, move ahead 50m from the driver.
 				
-				print('shift gplane2')
+			# 	print('shift gplane2')
 				
-								#change gplane to the driver's position
-				self.gplane2.setPosition(pos,viz.ABS_GLOBAL) 
+			# 					#change gplane to the driver's position
+			# 	self.gplane2.setPosition(pos,viz.ABS_GLOBAL) 
 
 				
-				#change euler to match camera
-				self.gplane2.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
+			# 	#change euler to match camera
+			# 	self.gplane2.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
 				
-				#move forward one texture length.
-				self.gplane2.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
+			# 	#move forward one texture length.
+			# 	self.gplane2.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
 
 def CloseConnections(EYETRACKING):
 	
