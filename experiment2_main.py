@@ -365,7 +365,7 @@ class myExperiment(viz.EventClass):
 			gplane1.texture(gtexture)
 			gplane1.visible(1)
 			self.gplane1 = gplane1
-			self.gplane_z_size = texture_z_size		
+			self.gplane_z_size = texture_z_size	
 
 			# the above code is working, but not how I want it to do. For the first trial, if trial occlusion is above 0
 			# it selects grass and if it below 1 it selects the black texture. However it continues to use this for the
@@ -605,7 +605,7 @@ if __name__ == '__main__':
 	EYETRACKING = True
 	PRACTICE = True
 	TILING = True #to reduce memory load set True to create two groundplane tiles that dynamically follow the driver's position instead of one massive groundplane.
-	EXP_ID = "BenLui17"
+	EXP_ID = "EXP2"
 
 	if PRACTICE == True: # HACK
 		EYETRACKING = False 
