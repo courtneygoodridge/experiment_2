@@ -221,6 +221,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
+		self.flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
 		print(self.FACTOR_headingpool)	
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading]  = GenerateConditionLists(self.FACTOR_headingpool, self.TrialsPerCondition)
@@ -262,7 +263,7 @@ class myExperiment(viz.EventClass):
 		self.SAVEDATA = False
 
 		####### DATA SAVING ######
-		datacolumns = ['ppid', 'heading', 'cameraoffset','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWV','SWA','YawRate_seconds','TurnAngle_frames','Distance_frames','dt', 'StraightVisible', 'setpoint']
+		datacolumns = ['ppid', 'heading', 'cameraoffset','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWV','SWA','YawRate_seconds','TurnAngle_frames','Distance_frames','dt', 'StraightVisible', 'setpoint', 'flow']
 		self.Output = pd.DataFrame(columns=datacolumns) #make new empty EndofTrial data
 
 		### parameters that are set at the start of each trial ####
@@ -324,12 +325,8 @@ class myExperiment(viz.EventClass):
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
 
-			flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
-			for i in flow:
-				if trial_heading > 0:
-					gtexture = viz.addTexture(i)
-				else:
-					gtexture = viz.addTexture(i)
+			flow = random.choice(self.flow)
+			gtexture = viz.addTexture(flow)
 			gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 			gtexture.wrap(viz.WRAP_S, viz.REPEAT)
 			gplane1 = viz.addTexQuad() 
@@ -359,6 +356,7 @@ class myExperiment(viz.EventClass):
 
 			
 			#update class trial parameters#
+			self.flow = flow # updates what flow condition and saves to dataframe
 			self.Trial_N = i
 			self.Trial_heading = trial_heading	
 			self.Trial_trialtype_signed = trialtype_signed
@@ -493,7 +491,7 @@ class myExperiment(viz.EventClass):
 			#datacolumns = ['ppid', 'heading', 'cameraoffset','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWA','BendVisible']
 			output = [self.PP_id, self.Trial_heading, self.Trial_Camera_Offset, self.Trial_N, self.Current_Time, self.Trial_trialtype_signed, 
 			self.Current_pos_x, self.Current_pos_z, self.Current_yaw, self.Current_SWV, self.Current_SWA, self.Current_YawRate_seconds, self.Current_TurnAngle_frames, 
-			self.Current_distance, self.Current_dt, self.Current_StraightVisibleFlag, self.Trial_setpoint] #output array.		
+			self.Current_distance, self.Current_dt, self.Current_StraightVisibleFlag, self.Trial_setpoint, self.flow] #output array.		
 
 			self.Output.loc[self.Current_RowIndex,:] = output #this dataframe is actually just one line. 		
 	
@@ -594,16 +592,13 @@ if __name__ == '__main__':
 	EYETRACKING = True
 	PRACTICE = True
 	TILING = True #to reduce memory load set True to create two groundplane tiles that dynamically follow the driver's position instead of one massive groundplane.
-	EXP_ID = "BenLui17"
+	EXP_ID = "EXP2"
 
 	if PRACTICE == True: # HACK
 		EYETRACKING = False 
 
 	
-	ParticipantNumber = viz.input('Enter participant number') #cmg edit 
-	#ParticipantID = viz.input('Enter unique participant ID') #cmg edit
-
-	#datafilename = str(ParticipantNumber) + '_' + str(ParticipantID) #cmg edit
+	ParticipantNumber = viz.input('Enter participant number')
 
 	myExp = myExperiment(EYETRACKING, PRACTICE, TILING, EXP_ID, ppid = ParticipantNumber) #initialises a myExperiment class
 
