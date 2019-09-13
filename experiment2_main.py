@@ -62,18 +62,16 @@ def LoadCave():
 	#caveview = cave.getCaveView()
 	return (cave)
 
-def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerCondition):
+def GenerateConditionLists(FACTOR_headingpool, TrialsPerCondition):
 	"""Based on two factor lists and TrialsPerCondition, create a factorial design and return trialarray and condition lists"""
 
-	NCndts = len(FACTOR_headingpool) * len(FACTOR_occlPool)
+	NCndts = len(FACTOR_headingpool)
 #	ConditionList = range(NCndts) 
 
 	#automatically generate factor lists so you can adjust levels using the FACTOR variables
-	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_occlPool))
-	ConditionList_occl = np.tile(FACTOR_occlPool, len(FACTOR_headingpool))
+	ConditionList_heading = np.repeat(FACTOR_headingpool, 1)
 
 	print (ConditionList_heading)
-	print (ConditionList_occl)
 
 	TotalN = NCndts * TrialsPerCondition
 
@@ -85,7 +83,7 @@ def GenerateConditionLists(FACTOR_headingpool, FACTOR_occlPool, TrialsPerConditi
 
 	TRIALSEQ_signed = np.array(direc)*np.array(TRIALSEQ)
 
-	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_occl)
+	return (TRIALSEQ_signed, ConditionList_heading)
 
 # ground texture setting
 # def setStage(TILING = False):
@@ -224,13 +222,11 @@ class myExperiment(viz.EventClass):
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
-		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
-		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
+		[trialsequence_signed, cl_heading]  = GenerateConditionLists(self.FACTOR_headingpool, self.TrialsPerCondition)
 
 		self.TRIALSEQ_signed = trialsequence_signed #list of trialtypes in a randomised order. -ve = leftwards, +ve = rightwards.
 		self.ConditionList_heading = cl_heading
-		self.ConditionList_occl = cl_occl
 
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
@@ -266,12 +262,11 @@ class myExperiment(viz.EventClass):
 		self.SAVEDATA = False
 
 		####### DATA SAVING ######
-		datacolumns = ['ppid', 'heading', 'cameraoffset', 'occlusion','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWV','SWA','YawRate_seconds','TurnAngle_frames','Distance_frames','dt', 'StraightVisible', 'setpoint']
+		datacolumns = ['ppid', 'heading', 'cameraoffset','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWV','SWA','YawRate_seconds','TurnAngle_frames','Distance_frames','dt', 'StraightVisible', 'setpoint']
 		self.Output = pd.DataFrame(columns=datacolumns) #make new empty EndofTrial data
 
 		### parameters that are set at the start of each trial ####
-		self.Trial_heading = 0
-		self.Trial_occlusion = 0 				
+		self.Trial_heading = 0 				
 		self.Trial_N = 0 #nth trial
 		self.Trial_trialtype_signed = 0
 		self.Trial_Camera_Offset = 0 			
@@ -328,12 +323,13 @@ class myExperiment(viz.EventClass):
 			trialtype = abs(trialtype_signed)
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
-			trial_occl = self.ConditionList_occl[trialtype] #set target number for the trial.
 
 			flow = ['textures\\strong_edge.bmp', 'textures\\black.jpg']
-			trial_flow = random.choice(flow)
-			fName = trial_flow
-			gtexture = viz.addTexture(fName)
+			for i in flow:
+				if trial_heading > 0:
+					gtexture = viz.addTexture(i)
+				else:
+					gtexture = viz.addTexture(i)
 			gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 			gtexture.wrap(viz.WRAP_S, viz.REPEAT)
 			gplane1 = viz.addTexQuad() 
@@ -350,21 +346,21 @@ class myExperiment(viz.EventClass):
 			self.gplane1 = gplane1
 			self.gplane_z_size = texture_z_size		
 
-			print(str([trial_heading, trial_occl]))
+			print(str([trial_heading]))
+			print(gtexture)
 
 			txtDir = ""
 			
 			######choose correct road object.######
 
 			# changes message on screen			
-			msg = msg = "Heading: " + str(trial_heading) + '_' + str(trial_occl) # COMMENT OUT FOR EXPERIMENT
+			msg = msg = "Heading: " + str(trial_heading) # COMMENT OUT FOR EXPERIMENT
 
 
 			
 			#update class trial parameters#
 			self.Trial_N = i
-			self.Trial_heading = trial_heading
-			self.Trial_occlusion = trial_occl	
+			self.Trial_heading = trial_heading	
 			self.Trial_trialtype_signed = trialtype_signed
 			#self.Trial_BendObject = trialbend			
 			
@@ -398,8 +394,6 @@ class myExperiment(viz.EventClass):
 
 			#FOR EQUAL AND OPPOSITE USE THE LINE BELOW:
 			self.Trial_Camera_Offset = trial_heading 
-
-			#self.Trial_Camera_Offset = random.choice(self.Camera_Offset) # CMG edit
 
 			#set the view offset.
 			
@@ -444,8 +438,8 @@ class myExperiment(viz.EventClass):
 			#will need to save initial vertex for line origin, and Euler. Is there a nifty way to save the relative position to the road?
 			self.driver.setSWA_invisible() # sets SWA invisible on screen		
 			
-			#trial_occl = 0 #HACK
-			yield viztask.waitTime(trial_occl) # This command will create a Condition object that will wait for the specified number of seconds to elapse. Will viztask waitime work within a class? 
+			occlusion = 0
+			# yield viztask.waitTime(trial_occl) # This command will create a Condition object that will wait for the specified number of seconds to elapse. Will viztask waitime work within a class? 
 			
 
 			#reset steering wheel set point. 
@@ -453,7 +447,7 @@ class myExperiment(viz.EventClass):
 
 			self.Straight.visible(1)
 			
-			yield viztask.waitTime(self.VisibleRoadTime-trial_occl) #after the occlusion add the road again. 2.5s to avoid ceiling effects.
+			yield viztask.waitTime(self.VisibleRoadTime - occlusion) #after the occlusion add the road again. 2.5s to avoid ceiling effects.
 			
 			self.Straight.visible(0)
 			# driver.setSWA_visible()
@@ -496,8 +490,8 @@ class myExperiment(viz.EventClass):
 		
 
 		if self.SAVEDATA:
-			#datacolumns = ['ppid', 'heading', 'cameraoffset', 'occlusion','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWA','BendVisible']
-			output = [self.PP_id, self.Trial_heading, self.Trial_Camera_Offset, self.Trial_occlusion, self.Trial_N, self.Current_Time, self.Trial_trialtype_signed, 
+			#datacolumns = ['ppid', 'heading', 'cameraoffset','trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWA','BendVisible']
+			output = [self.PP_id, self.Trial_heading, self.Trial_Camera_Offset, self.Trial_N, self.Current_Time, self.Trial_trialtype_signed, 
 			self.Current_pos_x, self.Current_pos_z, self.Current_yaw, self.Current_SWV, self.Current_SWA, self.Current_YawRate_seconds, self.Current_TurnAngle_frames, 
 			self.Current_distance, self.Current_dt, self.Current_StraightVisibleFlag, self.Trial_setpoint] #output array.		
 
@@ -507,7 +501,6 @@ class myExperiment(viz.EventClass):
 
 		"""Saves Current Dataframe to csv file"""
 
-		# self.Output.to_csv('Data//Pilot.csv') #pilot
 		
 		self.Output.to_csv(self.datafilename)
 	
