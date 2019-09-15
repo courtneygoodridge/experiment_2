@@ -237,7 +237,7 @@ class myExperiment(viz.EventClass):
 		##### SET CONDITION VALUES ##### 
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
-		self.FACTOR_widthpool = [1, 2] # 2 conditions to ultiple width by
+		self.FACTOR_widthpool = [1, 10] # 2 conditions to ultiple width by
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_width]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_widthpool, self.TrialsPerCondition)
 
@@ -245,8 +245,6 @@ class myExperiment(viz.EventClass):
 		self.ConditionList_heading = cl_heading
 		self.ConditionList_width = cl_width
 
-		#self.Camera_Offset = [-45, -10, 10, 45] #very obvious.
-		#self.Camera_Offset = np.linspace(-10, 10, 5) #random jitter within smallish bounds.
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
 		##### ADD GRASS TEXTURE #####
@@ -318,9 +316,6 @@ class myExperiment(viz.EventClass):
 		txtCondt = viz.addText("Condition",parent = viz.SCREEN)
 		txtCondt.setPosition(.7,.2)
 		txtCondt.fontSize(36)		
-
-		if self.EYETRACKING:
-			comms.start_trial()
 		
 		for i, trialtype_signed in enumerate(self.TRIALSEQ_signed):
 
@@ -337,9 +332,8 @@ class myExperiment(viz.EventClass):
 
 			print(str([trial_heading, trial_width]))
 
-			txtDir = ""
-			
-			######choose correct road object.######
+			self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200, width= 0.05 * trial_width)	
+			self.Straight.visible(0)
 
 			# changes message on screen			
 			msg = msg = "Heading: " + str(trial_heading) + '_' + str(trial_width) # COMMENT OUT FOR EXPERIMENT
@@ -347,6 +341,7 @@ class myExperiment(viz.EventClass):
 
 			
 			#update class trial parameters#
+            
 			self.Trial_N = i
 			self.Trial_heading = trial_heading
 			self.Trial_width = trial_width	
@@ -384,8 +379,6 @@ class myExperiment(viz.EventClass):
 			#FOR EQUAL AND OPPOSITE USE THE LINE BELOW:
 			self.Trial_Camera_Offset = trial_heading 
 
-			#self.Trial_Camera_Offset = random.choice(self.Camera_Offset) # CMG edit
-
 			#set the view offset.
 			
 			#put a mask on so that the jump isn't so visible
@@ -408,7 +401,7 @@ class myExperiment(viz.EventClass):
 
 			#translate bend to driver position.
 			driverpos = viz.MainView.getPosition()
-			print driverpos
+			print(driverpos)
 			self.Straight.setPosition(driverpos[0],0, driverpos[2])
 
 			# self.Straight.setPosition([0,0, 5], viz.REL_LOCAL)
