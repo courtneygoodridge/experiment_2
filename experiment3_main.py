@@ -237,7 +237,7 @@ class myExperiment(viz.EventClass):
 		##### SET CONDITION VALUES ##### 
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
-		self.FACTOR_widthpool = [1, 10] # 2 conditions to ultiple width by
+		self.FACTOR_widthpool = [0.05, 5, 10] # 2 conditions to ultiple width by
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_width]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_widthpool, self.TrialsPerCondition)
 
@@ -332,7 +332,7 @@ class myExperiment(viz.EventClass):
 
 			print(str([trial_heading, trial_width]))
 
-			self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200, width= 0.05 * trial_width)	
+			self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200, width = trial_width)	
 			self.Straight.visible(0)
 
 			# changes message on screen			
@@ -532,7 +532,7 @@ class myExperiment(viz.EventClass):
 			if viz.MainWindow.isCulled(self.gplane1):
 				#if it's not visible, move ahead 50m from the driver.
 				
-				print 'shift gplane1'
+				print('shift gplane1')
 
 				#since the road is on average straight ahead you can just move the plane along the z axis
 
@@ -550,7 +550,7 @@ class myExperiment(viz.EventClass):
 			if viz.MainWindow.isCulled(self.gplane2):
 				#if it's not visible, move ahead 50m from the driver.
 				
-				print 'shift gplane2'
+				print('shift gplane2')
 				
 								#change gplane to the driver's position
 				self.gplane2.setPosition(pos,viz.ABS_GLOBAL) 
@@ -579,16 +579,13 @@ if __name__ == '__main__':
 	EYETRACKING = True
 	PRACTICE = True
 	TILING = True #to reduce memory load set True to create two groundplane tiles that dynamically follow the driver's position instead of one massive groundplane.
-	EXP_ID = "BenLui17"
+	EXP_ID = "EXP3"
 
 	if PRACTICE == True: # HACK
 		EYETRACKING = False 
 
 	
-	ParticipantNumber = viz.input('Enter participant number') #cmg edit 
-	#ParticipantID = viz.input('Enter unique participant ID') #cmg edit
-
-	#datafilename = str(ParticipantNumber) + '_' + str(ParticipantID) #cmg edit
+	ParticipantNumber = viz.input('Enter participant number') 
 
 	myExp = myExperiment(EYETRACKING, PRACTICE, TILING, EXP_ID, ppid = ParticipantNumber) #initialises a myExperiment class
 
