@@ -33,10 +33,6 @@ import pandas as pd
 import random
 #import PPinput
 
-# ParticipantNumber = viz.input('Enter your participant number:')
-# ParticipantID = viz.input('Enter your unique participant ID: ')
-
-# filename = str(ParticipantNumber) + '_' + str(ParticipantID)
 
 def LoadEyetrackingModules():
 
