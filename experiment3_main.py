@@ -93,12 +93,13 @@ def setStage(TILING = True):
 	"""Creates grass textured groundplane"""
 	
 	# background color
-	viz.clearcolor(viz.SKYBLUE)
+	viz.clearcolor(viz.BLACK) # viz.SKYBLUE
 	
 	#CODE UP TILE-WORK WITH GROUNDPLANE.	
 	##should set this up so it builds new tiles if you are reaching the boundary.
 	#fName = 'textures\\strong_edge_redoutline.bmp'
-	fName = 'textures\\strong_edge.bmp'
+	fName = 'textures\\black.jpg'
+	# fName = 'textures\\strong_edge.bmp'
 	gtexture = viz.addTexture(fName)
 	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
@@ -233,7 +234,7 @@ class myExperiment(viz.EventClass):
 		##### SET CONDITION VALUES ##### 
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		print(self.FACTOR_headingpool)	
-		self.FACTOR_widthpool = [0.05, 5, 10] # 2 conditions to ultiple width by
+		self.FACTOR_widthpool = [0.05, 0.10, 0.15] # 2 conditions to ultiple width by
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_width]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_widthpool, self.TrialsPerCondition)
 
