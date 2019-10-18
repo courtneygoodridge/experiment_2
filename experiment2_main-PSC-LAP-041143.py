@@ -162,7 +162,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		print(self.FACTOR_headingpool)	
+		print self.FACTOR_headingpool	
 		self.FACTOR_occlPool = [0] #3 occlusion delay time conditions
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_occl]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_occlPool, self.TrialsPerCondition)
@@ -171,14 +171,13 @@ class myExperiment(viz.EventClass):
 		self.ConditionList_heading = cl_heading
 		self.ConditionList_occl = cl_occl
 
-		#self.Camera_Offset = [-45, -10, 10, 45] #very obvious.
-		#self.Camera_Offset = np.linspace(-10, 10, 5) #random jitter within smallish bounds.
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
 		##### ADD GRASS TEXTURE #####
-		[groundplane, gsize] = setStage(TILING)
-		self.groundplane = groundplane
-		self.gsize = gsize
+		[gplane1, gplane2, gplane_z_size] = setStage(TILING)
+		self.gplane1 = gplane1
+		self.gplane2 = gplane2
+		self.gplane_z_size = gplane_z_size
 
 		##### MAKE STRAIGHT OBJECT #####
 		self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200)	
@@ -201,9 +200,7 @@ class myExperiment(viz.EventClass):
 		self.Trial_trialtype_signed = 0
 		self.Trial_Camera_Offset = 0 			
 		self.Trial_setpoint = 0 #initial steering wheel angle 
-		#self.Trial_Timer = 0 #keeps track of trial length. 
-		#self.Trial_BendObject = None		
-		
+
 		#### parameters that are updated each timestamp ####
 		self.Current_pos_x = 0
 		self.Current_pos_z = 0
@@ -462,22 +459,38 @@ class myExperiment(viz.EventClass):
 		if self.TILING:
 		
 			#check if groundplane is culled, and update it if it is. 
-			if viz.MainWindow.isCulled(self.groundplane):
+			if viz.MainWindow.isCulled(self.gplane1):
 				#if it's not visible, move ahead 50m from the driver.
 				
-				print('shift gplane1')
+				print 'shift gplane1'
 
 				#since the road is on average straight ahead you can just move the plane along the z axis
 
 				#change gplane to the driver's position
-				self.groundplane.setPosition(pos,viz.ABS_GLOBAL) 
+				self.gplane1.setPosition(pos,viz.ABS_GLOBAL) 
 
 				
 				#change euler to match camera
-				self.groundplane.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
+				self.gplane1.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
 				
 				#move forward one texture length.
-				self.groundplane.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
+				self.gplane1.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
+
+				
+			if viz.MainWindow.isCulled(self.gplane2):
+				#if it's not visible, move ahead 50m from the driver.
+				
+				print 'shift gplane2'
+				
+								#change gplane to the driver's position
+				self.gplane2.setPosition(pos,viz.ABS_GLOBAL) 
+
+				
+				#change euler to match camera
+				self.gplane2.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
+				
+				#move forward one texture length.
+				self.gplane2.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
 
 def CloseConnections(EYETRACKING):
 	
@@ -503,6 +516,9 @@ if __name__ == '__main__':
 
 	
 	ParticipantNumber = viz.input('Enter participant number') #cmg edit 
+	#ParticipantID = viz.input('Enter unique participant ID') #cmg edit
+
+	#datafilename = str(ParticipantNumber) + '_' + str(ParticipantID) #cmg edit
 
 	myExp = myExperiment(EYETRACKING, PRACTICE, TILING, EXP_ID, ppid = ParticipantNumber) #initialises a myExperiment class
 
