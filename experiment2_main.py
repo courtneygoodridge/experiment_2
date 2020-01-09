@@ -85,60 +85,32 @@ def GenerateConditionLists(FACTOR_headingpool, TrialsPerCondition):
 
 	return (TRIALSEQ_signed, ConditionList_heading)
 
+# background color
+viz.clearcolor(viz.SKYBLUE) # comment out for black sky plane but might be best to leave sky blue in order 
+
 # ground texture setting
-def setStage(TILING = True):
+def setStage():
 	
-	"""Creates grass textured groundplane"""
+	global groundplane, groundtexture	
 	
-	# background color
-	viz.clearcolor(viz.SKYBLUE)
+	gsize = [1000,1000] #groundplane size, metres
+	groundplane = vizshape.addPlane(size=(gsize[0],gsize[1]),axis=vizshape.AXIS_Y,cullFace=True) ##make groundplane
+	groundplane.texture(viz.add('black.bmp')) #make groundplane black
+
+	#Build dot plane to cover black groundplane
+	ndots = 500000 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
+	viz.startlayer(viz.POINTS)
+	viz.vertexColor(viz.WHITE)	
+	viz.pointSize(2)
+	for i in range (0,ndots):
+		x =  (random.random() - .5)  * gsize[0]
+		z = (random.random() - .5) * gsize[1]
+		viz.vertex([x,0,z])
 	
-	#CODE UP TILE-WORK WITH GROUNDPLANE.	
-	##should set this up so it builds new tiles if you are reaching the boundary.
-	#fName = 'textures\\strong_edge_redoutline.bmp'
-	fName = 'textures\\strong_edge.bmp'
-	gtexture = viz.addTexture(fName)
-	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
-	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
-	# #add groundplane (wrap mode)
-###UNCOMMENT FOR TILING
-# Tiling saves memory by using two groundplane tiles instead of a massive groundplane. Since the drivers are essentially driving linearly forward, they cover a lot of distance across the z axis.
-	gplane1 = viz.addTexQuad() ##
-	tilesize = 3000
-	texture_z_size = tilesize * 2
-	#planesize = tilesize/5
-	planesize = tilesize/5.0
-	gplane1.setScale(tilesize, tilesize*2, tilesize)
-	gplane1.setEuler((0, 90, 0),viz.REL_LOCAL)
-	#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much (was originally commented out)
-	matrix = vizmat.Transform()
-	matrix.setScale( planesize, planesize*2, planesize )
-	gplane1.texmat( matrix )
-	#gplane1.texture(gtexture)
-	gplane1.texture(gtexture)
-	gplane1.visible(1)
-#
-	if TILING:
-		# fName2 = 'textures\\strong_edge_blueoutline.bmp'
-		#fName2 = 'textures\\strong_edge_blueoutline.bmp'
-		fName2 = 'textures\\strong_edge.bmp'
-		gtexture2 = viz.addTexture(fName2)
-		gtexture2.wrap(viz.WRAP_T, viz.REPEAT)
-		gtexture2.wrap(viz.WRAP_S, viz.REPEAT)
-		gplane2 = gplane1.copy() #create duplicate.
-		gplane2.setScale(tilesize, tilesize*2, tilesize)
-		gplane2.setEuler((0, 90, 0),viz.REL_LOCAL)
-		#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much.
-		gplane2.texmat( matrix )
-		#gplane1.texture(gtexture)
-		gplane2.texture(gtexture2)
-		gplane2.visible(1)
-		gplane2.setPosition(0,0,tilesize*2)
-		gplane2.zoffset(-1)
-	else:
-		gplane2 = []
-	
-	return(gplane1, gplane2, texture_z_size)
+	dots = viz.endLayer()
+	dots.setPosition(0,0,0)
+	dots.visible(1)
+	groundplane.visible(1)
 
 
 def StraightMaker(x, start_z, end_z, colour = [.8,.8,.8], primitive= viz.QUAD_STRIP, width=None):
@@ -189,7 +161,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		print self.FACTOR_headingpool
+		print(self.FACTOR_headingpool)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading]  = GenerateConditionLists(self.FACTOR_headingpool, self.TrialsPerCondition)
 
@@ -197,12 +169,6 @@ class myExperiment(viz.EventClass):
 		self.ConditionList_heading = cl_heading
 
 		self.Camera_Offset = np.linspace(-2, 2, 9)
-
-		##### ADD GRASS TEXTURE #####
-		[gplane1, gplane2, gplane_z_size] = setStage(TILING)
-		self.gplane1 = gplane1
-		self.gplane2 = gplane2
-		self.gplane_z_size = gplane_z_size
 
 		##### MAKE STRAIGHT OBJECT #####
 		self.Straight = StraightMaker(x = 0, start_z = 0, end_z = 200)	
@@ -252,12 +218,7 @@ class myExperiment(viz.EventClass):
 	def runtrials(self):
 		"""Loops through the trial sequence"""
 		
-		# if self.EYETRACKING:
-			# filename = str(self.EXP_ID) + "_Calibration" #+ str(demographics[0]) + "_" + str(demographics[2]) #add experimental block to filename
-			# print (filename)
-			# yield run_calibration(comms, filename)
-			# yield run_accuracy(comms, filename)		
-
+		setStage()
 		self.driver = vizdriver.Driver(self.caveview)	
 		self.SAVEDATA = True # switch saving data on.
 		
@@ -322,7 +283,7 @@ class myExperiment(viz.EventClass):
 			#3) Move straight to desired position			
 			# Translate straight to driver position.
 			driverpos = viz.MainView.getPosition()
-			print driverpos
+			print(driverpos) 
 			self.Straight.setPosition(driverpos[0],0, driverpos[2])
 
 
@@ -438,42 +399,6 @@ class myExperiment(viz.EventClass):
 
 		self.RecordData() #write a line in the dataframe.
 	
-		if self.TILING:
-		
-			#check if groundplane is culled, and update it if it is. 
-			if viz.MainWindow.isCulled(self.gplane1):
-				#if it's not visible, move ahead 50m from the driver.
-				
-				print 'shift gplane1'
-
-				#since the road is on average straight ahead you can just move the plane along the z axis
-
-				#change gplane to the driver's position
-				self.gplane1.setPosition(pos,viz.ABS_GLOBAL) 
-
-				
-				#change euler to match camera
-				self.gplane1.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
-				
-				#move forward one texture length.
-				self.gplane1.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
-
-				
-			if viz.MainWindow.isCulled(self.gplane2):
-				#if it's not visible, move ahead 50m from the driver.
-				
-				print 'shift gplane2'
-				
-								#change gplane to the driver's position
-				self.gplane2.setPosition(pos,viz.ABS_GLOBAL) 
-
-				
-				#change euler to match camera
-				self.gplane2.setEuler([self.Current_yaw,90,0],viz.ABS_GLOBAL)
-				
-				#move forward one texture length.
-				self.gplane2.setPosition(0,self.gplane_z_size, 0,viz.ABS_LOCAL) 
-
 def CloseConnections(EYETRACKING):
 	
 	"""Shuts down EYETRACKING and wheel threads then quits viz"""		
