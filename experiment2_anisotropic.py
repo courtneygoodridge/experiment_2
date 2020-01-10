@@ -9,6 +9,9 @@ This script relies on the following modules:
 For eyetracking - eyetrike_calibration_standard.py; eyetrike_accuracy_standard.py; also the drivinglab_pupil plugin.
 For perspective correct rendering - myCave.py
 For motion through the virtual world - vizdriver_BenLui.py
+
+The experiment branch manipulates flow via anisotropic filtering using the anisotropy() function. This creates a sharper image depending on the ratio that is used.
+Sharper images equates increased flow information.
 """
 import sys
 
@@ -101,7 +104,6 @@ def setStage(TILING = True):
 	gtexture = viz.addTexture(fName)
 	gtexture.wrap(viz.WRAP_T, viz.REPEAT)
 	gtexture.wrap(viz.WRAP_S, viz.REPEAT)
-	#gtexture.anisotropy() # potential flow manipulation
 	# #add groundplane (wrap mode)
 ###UNCOMMENT FOR TILING
 # Tiling saves memory by using two groundplane tiles instead of a massive groundplane. Since the drivers are essentially driving linearly forward, they cover a lot of distance across the z axis.
@@ -142,7 +144,6 @@ def setStage(TILING = True):
 	
 	return(gplane1, gplane2, texture_z_size)
 	
-
 
 def StraightMaker(x, start_z, end_z, colour = [.8,.8,.8], primitive= viz.QUAD_STRIP, width=None):
 	"""returns a straight, given some starting coords and length"""
@@ -192,8 +193,8 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		self.FACTOR_flow = [1, 4, 8] #3 starting position conditions
-		print self.FACTOR_headingpool
+		self.FACTOR_flow = [1, 2, 4] #3 flow conditions. Sharpness doubles with each increase in factor level
+		print(self.FACTOR_headingpool)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_flow]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_flow, self.TrialsPerCondition)
 
@@ -285,9 +286,7 @@ class myExperiment(viz.EventClass):
 			trialtype = abs(trialtype_signed)
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
-			trial_flow = self.ConditionList_flow[trialtype] #set target number for the trial.
-
-			gtexture.anisotropy(trial_flow)
+			trial_flow = self.ConditionList_flow[trialtype] #set flow for trial
 
 			print(str([trial_heading, trial_flow]))
 
@@ -312,11 +311,12 @@ class myExperiment(viz.EventClass):
 			#FOR EQUAL AND OPPOSITE USE THE LINE BELOW:
 			self.Trial_Camera_Offset = trial_heading 
 
-			#put a mask on so that the jump isn't so visible
+			#put a mask on so that the jump/flow change isn't so visible
 			self.blackscreen.visible(viz.ON)
 			yield viztask.waitFrame(6) #wait for six frames (.1 s)
 			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0 )
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
+            gtexture.anisotropy(trial_flow) # sets new flow condition
 			self.blackscreen.visible(viz.OFF) #turn the mask
 			
 			#2) give participant time with new flow field
@@ -330,7 +330,6 @@ class myExperiment(viz.EventClass):
 			driverpos = viz.MainView.getPosition()
 			print driverpos
 			self.Straight.setPosition(driverpos[0],0, driverpos[2])
-
 
 			# Match straight orientation to the driver
 			driverEuler = viz.MainView.getEuler() # gets current driver euler (orientation)
