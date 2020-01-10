@@ -316,7 +316,7 @@ class myExperiment(viz.EventClass):
 			yield viztask.waitFrame(6) #wait for six frames (.1 s)
 			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0 )
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
-            gtexture.anisotropy(trial_flow) # sets new flow condition
+			gtexture.anisotropy(trial_flow) # sets new flow condition
 			self.blackscreen.visible(viz.OFF) #turn the mask
 			
 			#2) give participant time with new flow field
@@ -328,7 +328,7 @@ class myExperiment(viz.EventClass):
 			#3) Move straight to desired position			
 			# Translate straight to driver position.
 			driverpos = viz.MainView.getPosition()
-			print driverpos
+			print(driverpos)
 			self.Straight.setPosition(driverpos[0],0, driverpos[2])
 
 			# Match straight orientation to the driver
