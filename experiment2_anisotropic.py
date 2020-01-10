@@ -195,6 +195,7 @@ class myExperiment(viz.EventClass):
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
 		self.FACTOR_flow = [1, 2, 4] #3 flow conditions. Sharpness doubles with each increase in factor level
 		print(self.FACTOR_headingpool)
+		print(self.FACTOR_flow)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
 		[trialsequence_signed, cl_heading, cl_flow]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_flow, self.TrialsPerCondition)
 
@@ -232,8 +233,7 @@ class myExperiment(viz.EventClass):
 		self.Trial_trialtype_signed = 0
 		self.Trial_Camera_Offset = 0 			
 		self.Trial_setpoint = 0 #initial steering wheel angle 
-		#self.Trial_Timer = 0 #keeps track of trial length. 
-		#self.Trial_BendObject = None		
+		#self.Trial_Timer = 0 #keeps track of trial length	
 		
 		#### parameters that are updated each timestamp ####
 		self.Current_pos_x = 0

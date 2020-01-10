@@ -62,16 +62,17 @@ def LoadCave():
 	#caveview = cave.getCaveView()
 	return (cave)
 
-def GenerateConditionLists(FACTOR_headingpool, TrialsPerCondition):
+def GenerateConditionLists(FACTOR_headingpool, FACTOR_dots, TrialsPerCondition):
 	"""Based on two factor lists and TrialsPerCondition, create a factorial design and return trialarray and condition lists"""
 
-	NCndts = len(FACTOR_headingpool)	
-#	ConditionList = range(NCndts) 
+	NCndts = len(FACTOR_headingpool) * len(FACTOR_dots)	
 
-	#automatically generate factor lists so you can adjust levels using the FACTOR variables
-	ConditionList_heading = FACTOR_headingpool
+		#automatically generate factor lists so you can adjust levels using the FACTOR variables
+	ConditionList_heading = np.repeat(FACTOR_headingpool, len(FACTOR_dots))
+	ConditionList_dots = np.tile(FACTOR_dots, len(FACTOR_headingpool))
 
-	print (ConditionList_heading)
+	print(ConditionList_heading)
+	print(ConditionList_dots)
 
 	TotalN = NCndts * TrialsPerCondition
 
@@ -83,7 +84,7 @@ def GenerateConditionLists(FACTOR_headingpool, TrialsPerCondition):
 
 	TRIALSEQ_signed = np.array(direc)*np.array(TRIALSEQ)
 
-	return (TRIALSEQ_signed, ConditionList_heading)
+	return (TRIALSEQ_signed, ConditionList_heading, ConditionList_dots)
 
 # background color
 viz.clearcolor(viz.SKYBLUE) # comment out for black sky plane but might be best to leave sky blue in order 
@@ -91,14 +92,14 @@ viz.clearcolor(viz.SKYBLUE) # comment out for black sky plane but might be best 
 # ground texture setting
 def setStage():
 	
-	global groundplane, groundtexture	
+	global ndots	
 	
 	gsize = [1000,1000] #groundplane size, metres
 	groundplane = vizshape.addPlane(size=(gsize[0],gsize[1]),axis=vizshape.AXIS_Y,cullFace=True) ##make groundplane
 	groundplane.texture(viz.add('black.bmp')) #make groundplane black
 
 	#Build dot plane to cover black groundplane
-	ndots = 500000 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
+	ndots = 3645 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
 	viz.startlayer(viz.POINTS)
 	viz.vertexColor(viz.WHITE)	
 	viz.pointSize(2)
@@ -161,12 +162,15 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
+		self.FACTOR_dots = [1, 10000, 1000000000] # experiment dot flow fields 
 		print(self.FACTOR_headingpool)
+		print(self.FACTOR_dots)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
-		[trialsequence_signed, cl_heading]  = GenerateConditionLists(self.FACTOR_headingpool, self.TrialsPerCondition)
+		[trialsequence_signed, cl_heading, cl_dots]  = GenerateConditionLists(self.FACTOR_headingpool, self.FACTOR_dots, self.TrialsPerCondition)
 
 		self.TRIALSEQ_signed = trialsequence_signed #list of trialtypes in a randomised order. -ve = leftwards, +ve = rightwards.
 		self.ConditionList_heading = cl_heading
+		self.ConditionList_dots = cl_dots
 
 		self.Camera_Offset = np.linspace(-2, 2, 9)
 
@@ -181,17 +185,17 @@ class myExperiment(viz.EventClass):
 		self.SAVEDATA = False
 
 		####### DATA SAVING ######
-		datacolumns = ['ppid', 'heading', 'cameraoffset', 'trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWV','SWA','YawRate_seconds','TurnAngle_frames','Distance_frames','dt', 'StraightVisible', 'setpoint']
+		datacolumns = ['ppid', 'heading', 'cameraoffset', ' dots', 'trialn','timestamp','trialtype_signed','World_x','World_z','WorldYaw','SWV','SWA','YawRate_seconds','TurnAngle_frames','Distance_frames','dt', 'StraightVisible', 'setpoint']
 		self.Output = pd.DataFrame(columns=datacolumns) #make new empty EndofTrial data
 
 		### parameters that are set at the start of each trial ####
-		self.Trial_heading = 0			
+		self.Trial_heading = 0
+		self.Trial_dots = 0			
 		self.Trial_N = 0 #nth trial
 		self.Trial_trialtype_signed = 0
 		self.Trial_Camera_Offset = 0 			
 		self.Trial_setpoint = 0 #initial steering wheel angle 
 		#self.Trial_Timer = 0 #keeps track of trial length. 
-		#self.Trial_BendObject = None		
 		
 		#### parameters that are updated each timestamp ####
 		self.Current_pos_x = 0
@@ -243,8 +247,9 @@ class myExperiment(viz.EventClass):
 			trialtype = abs(trialtype_signed)
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
+			trial_dots = self.ConditionList_dots[trialtype]
 
-			print(str([trial_heading]))
+			print(str([trial_heading, trial_dots]))
 
 			txtDir = ""
 			
@@ -258,6 +263,7 @@ class myExperiment(viz.EventClass):
 			#update class trial parameters#
 			self.Trial_N = i
 			self.Trial_heading = trial_heading	
+			self.Trial_dots = trial_dots
 			self.Trial_trialtype_signed = trialtype_signed			
 			
 		
@@ -270,8 +276,9 @@ class myExperiment(viz.EventClass):
 			#put a mask on so that the jump isn't so visible
 			self.blackscreen.visible(viz.ON)
 			yield viztask.waitFrame(6) #wait for six frames (.1 s)
-			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0 )
+			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0)
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
+			ndots = trial_dots
 			self.blackscreen.visible(viz.OFF) #turn the mask
 			
 			#2) give participant time with new flow field
@@ -348,7 +355,7 @@ class myExperiment(viz.EventClass):
 		
 
 		if self.SAVEDATA:
-			output = [self.PP_id, self.Trial_heading, self.Trial_Camera_Offset, self.Trial_N, self.Current_Time, self.Trial_trialtype_signed, 
+			output = [self.PP_id, self.Trial_heading, self.Trial_Camera_Offset, self.Trial_dots, self.Trial_N, self.Current_Time, self.Trial_trialtype_signed, 
 			self.Current_pos_x, self.Current_pos_z, self.Current_yaw, self.Current_SWV, self.Current_SWA, self.Current_YawRate_seconds, self.Current_TurnAngle_frames, 
 			self.Current_distance, self.Current_dt, self.Current_StraightVisibleFlag, self.Trial_setpoint] #output array.		
 
