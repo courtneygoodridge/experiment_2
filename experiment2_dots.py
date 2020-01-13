@@ -92,11 +92,13 @@ viz.clearcolor(viz.SKYBLUE) # comment out for black sky plane but might be best 
 # ground texture setting
 def setStage():
 	
-	global ndots	
+	global groundplane, groundtexture
+
+	fName = 'textures\\black.jpg'	
 	
 	gsize = [1000,1000] #groundplane size, metres
 	groundplane = vizshape.addPlane(size=(gsize[0],gsize[1]),axis=vizshape.AXIS_Y,cullFace=True) ##make groundplane
-	groundplane.texture(viz.add('black.bmp')) #make groundplane black
+	groundplane.texture(viz.add(fName)) #make groundplane black
 
 	#Build dot plane to cover black groundplane
 	ndots = 3645 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
@@ -162,7 +164,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		self.FACTOR_dots = [1, 10000, 1000000000] # experiment dot flow fields 
+		self.FACTOR_dots = [1, 1000, 100000] # experiment dot flow fields 
 		print(self.FACTOR_headingpool)
 		print(self.FACTOR_dots)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
@@ -250,8 +252,6 @@ class myExperiment(viz.EventClass):
 			trial_dots = self.ConditionList_dots[trialtype]
 
 			print(str([trial_heading, trial_dots]))
-
-			txtDir = ""
 			
 			######choose correct road object.######
 
@@ -278,7 +278,6 @@ class myExperiment(viz.EventClass):
 			yield viztask.waitFrame(6) #wait for six frames (.1 s)
 			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0)
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
-			ndots = trial_dots
 			self.blackscreen.visible(viz.OFF) #turn the mask
 			
 			#2) give participant time with new flow field
