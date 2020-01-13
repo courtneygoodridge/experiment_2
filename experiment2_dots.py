@@ -92,7 +92,7 @@ viz.clearcolor(viz.SKYBLUE) # comment out for black sky plane but might be best 
 # ground texture setting
 def setStage(TILING = True):
 	
-	global groundtexture, ndots, tilesize
+	global ndots, tilesize
 
 	fName = 'textures\\black.jpg'	
 	gtexture = viz.addTexture(fName)
@@ -122,7 +122,7 @@ def setStage(TILING = True):
 		gplane2 = gplane1.copy() #create duplicate.
 		gplane2.setScale(tilesize, tilesize*2, tilesize)
 		gplane2.setEuler((0, 90, 0),viz.REL_LOCAL)
-		#groundplane.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much.
+		gplane2.setPosition((0,0,1000),viz.REL_LOCAL) #move forward 1km so don't need to render as much.
 		gplane2.texmat( matrix )
 		gplane2.texture(gtexture2)
 		gplane2.visible(1)
@@ -131,20 +131,18 @@ def setStage(TILING = True):
 	else:
 		gplane2 = []
 
-	#Build dot plane to cover black groundplane
-	ndots = 100000 #arbitrarily picked. perhaps we could match dot density to K & W, 2013? 
-	viz.startlayer(viz.POINTS)
-	viz.vertexColor(viz.WHITE)	
-	viz.pointSize(2)
-	for i in range (0,ndots):
-		x =  (random.random() - .5)  * tilesize
-		z = (random.random() - .5) * tilesize
-		viz.vertex([x,0,z])
+	# viz.startlayer(viz.POINTS)
+	# viz.vertexColor(viz.WHITE)	
+	# viz.pointSize(2)
+	# for i in range (0,trial_dots):
+		# x =  (random.random() - .5)  * tilesize
+		# z = (random.random() - .5) * tilesize
+		# viz.vertex([x,0,z])
 	
-	dots = viz.endLayer()
-	dots.setPosition(0,0,0)
-	dots.visible(1)
-	
+	# dots = viz.endLayer()
+	# dots.setPosition(0,0,0)
+	# dots.visible(1)
+
 	return(gplane1, gplane2, texture_z_size)
 
 
@@ -196,7 +194,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		self.FACTOR_dots = [1, 1000, 100000] # experiment dot flow fields 
+		self.FACTOR_dots = [0, 100000] # experiment dot flow fields 
 		print(self.FACTOR_headingpool)
 		print(self.FACTOR_dots)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
@@ -307,27 +305,28 @@ class myExperiment(viz.EventClass):
 		
 			yield viztask.waitTime(1) #wait for one second before change of camera heading
 
-			#1) Offset camera
+			#1) Offset camera and manipulate dot flow
 			#FOR EQUAL AND OPPOSITE USE THE LINE BELOW:
 			self.Trial_Camera_Offset = trial_heading 
 
 			#put a mask on so that the jump isn't so visible
 			self.blackscreen.visible(viz.ON)
-			yield viztask.waitFrame(12) #wait for six frames (.2 s)
+			yield viztask.waitFrame(6) #wait for six frames (.2 s)
 			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0)
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
 
-			#viz.startlayer(viz.POINTS)
-			#viz.vertexColor(viz.WHITE)	
-			#viz.pointSize(2)
-			#for i in range (0,trial_dots):
-				#x =  (random.random() - .5)  * tilesize
-				#z = (random.random() - .5) * tilesize
-				#viz.vertex([x,0,z])
+			# manipulate dot flow 	
+			viz.startlayer(viz.POINTS)
+			viz.vertexColor(viz.WHITE)	
+			viz.pointSize(2)
+			for i in range (0,trial_dots):
+				x =  (random.random() - .5)  * tilesize
+				z = (random.random() - .5) * tilesize
+				viz.vertex([x,0,z])
 	
-			#dots = viz.endLayer()
-			#dots.setPosition(0,0,0)
-			#dots.visible(1)
+			dots = viz.endLayer()
+			dots.setPosition(0,0,0)
+			dots.visible(1)
 			
 			self.blackscreen.visible(viz.OFF) #turn the mask
 			
@@ -365,8 +364,6 @@ class myExperiment(viz.EventClass):
 			
 			#6) Remove straight
 			self.Straight.visible(0)
-			
-
 			
 			def checkCentred():
 				
