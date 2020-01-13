@@ -92,7 +92,7 @@ viz.clearcolor(viz.SKYBLUE) # comment out for black sky plane but might be best 
 # ground texture setting
 def setStage(TILING = True):
 	
-	global groundplane, groundtexture
+	global groundtexture, ndots, tilesize
 
 	fName = 'textures\\black.jpg'	
 	gtexture = viz.addTexture(fName)
@@ -313,9 +313,22 @@ class myExperiment(viz.EventClass):
 
 			#put a mask on so that the jump isn't so visible
 			self.blackscreen.visible(viz.ON)
-			yield viztask.waitFrame(6) #wait for six frames (.1 s)
+			yield viztask.waitFrame(12) #wait for six frames (.2 s)
 			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0)
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
+
+			#viz.startlayer(viz.POINTS)
+			#viz.vertexColor(viz.WHITE)	
+			#viz.pointSize(2)
+			#for i in range (0,trial_dots):
+				#x =  (random.random() - .5)  * tilesize
+				#z = (random.random() - .5) * tilesize
+				#viz.vertex([x,0,z])
+	
+			#dots = viz.endLayer()
+			#dots.setPosition(0,0,0)
+			#dots.visible(1)
+			
 			self.blackscreen.visible(viz.OFF) #turn the mask
 			
 			#2) give participant time with new flow field
