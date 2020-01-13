@@ -329,7 +329,7 @@ class myExperiment(viz.EventClass):
 			dots.visible(1)
 			
 			self.blackscreen.visible(viz.OFF) #turn the mask
-			
+
 			#2) give participant time with new flow field
 			yield viztask.waitTime(1) #wait for one second after change of camera heading
 			
@@ -345,7 +345,7 @@ class myExperiment(viz.EventClass):
 
 			# Match straight orientation to the driver
 			driverEuler = viz.MainView.getEuler() # gets current driver euler (orientation)
-			print ("driverEuler", driverEuler) # prints the euler 
+			print("driverEuler", driverEuler) # prints the euler 
 			self.Straight.setEuler(driverEuler, viz.ABS_GLOBAL) # then sets the straight euler as the driver euler in global coordinates.
 			
 			# Offset the angle
@@ -364,6 +364,10 @@ class myExperiment(viz.EventClass):
 			
 			#6) Remove straight
 			self.Straight.visible(0)
+
+			# I think the problem is that I am adding dots to the layer rather than overwriting the last call for dots. When I print the dots objects, Vizard describes it as a
+			# viz.VizPrimitive with a number next to it. This number increases for every trial. Perhaps if I can reset the start and end layer for each trial, then the dots would
+			# not accumulate? 
 			
 			def checkCentred():
 				
