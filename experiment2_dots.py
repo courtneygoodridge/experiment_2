@@ -194,7 +194,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		self.FACTOR_dots = [0, 100000] # experiment dot flow fields 
+		self.FACTOR_dots = [0, 5000, 100000] # experiment dot flow fields 
 		print(self.FACTOR_headingpool)
 		print(self.FACTOR_dots)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
@@ -300,9 +300,8 @@ class myExperiment(viz.EventClass):
 			self.Trial_N = i
 			self.Trial_heading = trial_heading	
 			self.Trial_dots = trial_dots
-			self.Trial_trialtype_signed = trialtype_signed			
-			
-		
+			self.Trial_trialtype_signed = trialtype_signed
+
 			yield viztask.waitTime(1) #wait for one second before change of camera heading
 
 			#1) Offset camera and manipulate dot flow
@@ -317,7 +316,7 @@ class myExperiment(viz.EventClass):
 
 			# manipulate dot flow 	
 			viz.startlayer(viz.POINTS)
-			viz.vertexColor(viz.WHITE)	
+			viz.vertexColor(viz.WHITE)
 			viz.pointSize(2)
 			for i in range (0,trial_dots):
 				x =  (random.random() - .5)  * tilesize
@@ -330,7 +329,7 @@ class myExperiment(viz.EventClass):
 			
 			self.blackscreen.visible(viz.OFF) #turn the mask
 
-			#2) give participant time with new flow field
+			#2) give participant time with new flow field - might be extra important when manipulating flow field
 			yield viztask.waitTime(1) #wait for one second after change of camera heading
 			
 			# msg = msg + '\n' + 'Offset: ' + str(self.Trial_Camera_Offset) #Save your variables - COMMENT OUT FOR EXPERIMENT
@@ -365,10 +364,9 @@ class myExperiment(viz.EventClass):
 			#6) Remove straight
 			self.Straight.visible(0)
 
-			# I think the problem is that I am adding dots to the layer rather than overwriting the last call for dots. When I print the dots objects, Vizard describes it as a
-			# viz.VizPrimitive with a number next to it. This number increases for every trial. Perhaps if I can reset the start and end layer for each trial, then the dots would
-			# not accumulate? 
-			
+			#7) remove dot flow - unsure whether this is the correct thing to do - might need standard level of flow that is then manipulated
+			dots.remove()
+
 			def checkCentred():
 				
 				centred = False
