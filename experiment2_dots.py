@@ -194,7 +194,7 @@ class myExperiment(viz.EventClass):
 
 		##### SET CONDITION VALUES #####
 		self.FACTOR_headingpool = np.linspace(-2, 2, 9) # experimental angles
-		self.FACTOR_dots = [0, 5000, 100000] # experiment dot flow fields 
+		self.FACTOR_dots = [30000, 90000, 270000] # experiment dot flow fields 
 		print(self.FACTOR_headingpool)
 		print(self.FACTOR_dots)
 		self.TrialsPerCondition = 10 # was oriringally 10 for pilot	
@@ -281,7 +281,10 @@ class myExperiment(viz.EventClass):
 			#import vizjoy		
 			print("Trial: ", str(i))
 			print("TrialType: ", str(trialtype_signed))
-			
+
+			print("gplanez", self.gplane_z_size)
+			print("gplane2", self.gplane2)
+
 			trialtype = abs(trialtype_signed)
 
 			trial_heading = self.ConditionList_heading[trialtype] #set heading for that trial
@@ -310,7 +313,7 @@ class myExperiment(viz.EventClass):
 
 			#put a mask on so that the jump isn't so visible
 			self.blackscreen.visible(viz.ON)
-			yield viztask.waitFrame(6) #wait for six frames (.2 s)
+			yield viztask.waitFrame(6) #wait for six frames (.2 s) originally 6
 			offset = viz.Matrix.euler( self.Trial_Camera_Offset, 0, 0)
 			viz.MainWindow.setViewOffset( offset )  # counter rotates camera
 
@@ -363,7 +366,7 @@ class myExperiment(viz.EventClass):
 			
 			#6) Remove straight
 			self.Straight.visible(0)
-
+			
 			#7) remove dot flow - unsure whether this is the correct thing to do - might need standard level of flow that is then manipulated
 			dots.remove()
 
